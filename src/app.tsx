@@ -1,24 +1,28 @@
-import React from 'react';
-import logo from './assets/icons/logo.svg';
-import {SApp, SHeader, SLink, SLogo} from "./assets/styles/app.styles";
+import React, {useCallback, useState} from 'react';
+import {ProductListContainer} from "./components/product/list/product-list.container";
+import {CreateButton} from "./components/CreateButton";
+import {Modal} from "./components/product/Creation/Modal";
+import {ProductCreateForm} from "./components/product/ProductCreateForm";
+
 
 function App() {
+    const [modalOpened, setModalOpened] = useState(false)
+
+    const openModal = useCallback( () => setModalOpened(true), [])
+    const closeModal = useCallback(() => setModalOpened(false), []);
+
     return (
-        <SApp>
-            <SHeader>
-                <SLogo src={logo} alt="logo"/>
-                <p>
-                    Edit <code>src/App.tsx</code> and save to reload.
-                </p>
-                <SLink
-                    href="https://reactjs.org"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                >
-                    Learn React
-                </SLink>
-            </SHeader>
-        </SApp>
+
+        <div>
+            <ProductListContainer/>
+            <CreateButton openModalHandler={openModal}/>
+            {modalOpened && <Modal
+                title='Create Product'
+                closeModalHandler={closeModal}>
+                <ProductCreateForm closeModalHandler={closeModal}/>
+            </Modal>}
+
+        </div>
     );
 }
 

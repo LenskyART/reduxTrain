@@ -2,8 +2,8 @@ import React, {useRef, useState} from 'react';
 import styled from "styled-components";
 import {Input} from "../Input";
 import {Button} from "../Button";
-import {useDispatch} from "react-redux";
-import {setProductActions} from "../../store/product/product.slice";
+import {useAppDispatch} from "../../hooks/useDispatch";
+import {productReducer} from "../../store/product/product.slice";
 
 const FormStyled = styled.form`
   display: flex;
@@ -17,27 +17,38 @@ interface IProductCreateForm {
     closeModalHandler: () => void
 }
 
+type CustomElements = HTMLFormControlsCollection & {
+    title: HTMLInputElement;
+    description: HTMLInputElement;
+};
+
+interface CustomForm extends HTMLFormElement {
+    readonly elements: CustomElements;
+}
+
 export const ProductCreateForm = ({closeModalHandler}: IProductCreateForm) => {
     const [isError, setIsError] = useState('')
     const idCounter = useRef(0)
-    const dispatch = useDispatch()
+    const dispatch = useAppDispatch()
+    const {setProductToStart} = productReducer.actions
 
-    const submitHandler = (event: React.FormEvent) => {
-        if (!event.currentTarget.children[0].getAttribute('value')) {
+    const submitHandler = (event: React.FormEvent<CustomForm>) => {
+        const title = event.currentTarget.elements.title.value
+
+        if (!title) {
             setIsError('isError')
             event.preventDefault()
             return
         }
-        const title = event.currentTarget.children[0].getAttribute('value')
-        const description = event.currentTarget.children[1].getAttribute('value')
+        const description = event.currentTarget.elements.description.value
 
         const newProduct = {
             id: 1234567890 + idCounter.current,
-            title: title || undefined,
-            description: description || undefined
+            title: title,
+            description: description
         }
         idCounter.current++
-        dispatch(setProductActions(newProduct))
+        dispatch(setProductToStart(newProduct))
         closeModalHandler()
         event.preventDefault()
     }

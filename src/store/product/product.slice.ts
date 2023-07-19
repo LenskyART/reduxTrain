@@ -1,43 +1,41 @@
 import {ProductModel} from "../../models/product.model";
+import {createSlice, PayloadAction} from "@reduxjs/toolkit";
+import {fetchProductsApi} from "../../services/product-api.service";
 
-interface ProductsReducerState {
-    productsState: ProductModel[];
+interface ProductsState {
+    productsState: Partial<ProductModel[]>;
+    isLoading: boolean,
+    error: string
 }
 
-const defState: ProductsReducerState = {
+const initialState: ProductsState = {
     productsState: [],
+    isLoading: false,
+    error: ''
 };
 
-interface SetProductsAction  {
-    type: 'setProducts';
-    payload: ProductModel[];
-}
-
-interface SetProductAction  {
-    type: 'setProduct';
-    payload: Partial<ProductModel>;
-}
-
-export type ActionProduct = SetProductsAction | SetProductAction
-
-
-export const productReducer = (state = defState, action: ActionProduct) => {
-    switch (action.type) {
-        case 'setProducts':
-            return { ...state, productsState: [...action.payload] };
-        case 'setProduct':
-            return { ...state, productsState: [action.payload, ...state.productsState] };
-        default:
-            return state;
+export const productReducer = createSlice({
+    name: 'products',
+    initialState,
+    reducers: {
+        setProductToStart(state, {payload: product}: PayloadAction<ProductModel>){
+            state.productsState.push(product)
+        }
+    },
+    extraReducers: {
+        [fetchProductsApi.fulfilled.type]: (state, {payload: products}: PayloadAction<ProductModel[]>) => {
+            state.isLoading = false
+            state.productsState = products
+            state.error = ''
+        },
+        [fetchProductsApi.pending.type]: (state) => {
+            state.isLoading = true
+        },
+        [fetchProductsApi.rejected.type]: (state, {payload: string}: PayloadAction<string>) => {
+            state.error = string
+        },
     }
-};
+})
 
-export const setProductsActions = (payload: ProductModel[]) => ({
-    type: 'setProducts',
-    payload
-});
-
-export const setProductActions = (payload: Partial<ProductModel>) => ({
-    type: 'setProduct',
-    payload
-});
+export const {actions} = productReducer
+export default productReducer.reducer

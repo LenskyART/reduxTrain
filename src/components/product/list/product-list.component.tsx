@@ -1,16 +1,13 @@
-import React from 'react';
-import {ProductModel} from "../../../models/product.model";
+import React, {memo} from 'react';
 import {ProductCard} from "../card/product-card.component";
-import {useSelector} from "react-redux";
+import {useAppSelector} from "../../../hooks/useDispatch";
 
 export const ProductList = () => {
-    const products = useSelector(
-        (state: {productsRoot: {productsState: ProductModel}}) => state.productsRoot.productsState
-    )
+    const products = useAppSelector(state => state.products.productsState)
 
     return (
         <>
-            {Object.values(products).map(elem => <ProductCard key={elem.id} {...elem}/>)}
+            {products.map(elem => elem ? <ProductCard key={elem.id} {...elem}/> : null)}
         </>
     );
 };

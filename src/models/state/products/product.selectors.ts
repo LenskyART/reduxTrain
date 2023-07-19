@@ -1,7 +1,5 @@
-import {ProductModel} from "../../product.model";
 import {useSelector} from "react-redux";
+import {RootState} from "../../../store/store";
 
-export const products = useSelector(
-    (state: { products: { products: ProductModel[] } }) => state.products.products
-);
+export const products = useSelector((state: RootState) => state.products)
 
